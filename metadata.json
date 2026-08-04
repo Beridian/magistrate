@@ -1,0 +1,6 @@
+{
+  "name": "Spy Hunt - Local Social Deduction",
+  "description": "A pass-and-play local multiplayer social deduction party game for 4-8 players on a single shared device.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
