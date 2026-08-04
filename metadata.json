@@ -1,6 +1,6 @@
 {
-  "name": "Camo Dude - Social Deduction Game",
-  "description": "A pass-and-play social deduction game for families and kids where players try to catch the Camo Dude.",
+  "name": "Spy Hunt - Local Social Deduction",
+  "description": "A pass-and-play local multiplayer social deduction party game for 4-8 players on a single shared device.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
