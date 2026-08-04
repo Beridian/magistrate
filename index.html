@@ -1,16 +1,1338 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Spy Hunt - Local Social Deduction</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@300;400;600;700&display=swap" rel="stylesheet">
-  </head>
-  <body class="bg-[#070707] text-[#E0D7D0]">
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Camo Dude - Social Deduction Game</title>
+  <script src="categories.js"></script>
+  <style>
+    :root {
+      --bg-yellow: #FFD93B;
+      --bg-card: #FFFFFF;
+      --border-color: #000000;
+      --text-main: #000000;
+      --text-muted: #475569;
+      --accent-coral: #FF6B6B;
+      --accent-teal: #4ECDC4;
+      --accent-yellow: #FFD93B;
+      --accent-purple: #A855F7;
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --shadow-card: 8px 8px 0px 0px #000000;
+      --shadow-btn: 4px 4px 0px 0px #000000;
+      --shadow-btn-hover: 6px 6px 0px 0px #000000;
+    }
 
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-yellow);
+      background-image: radial-gradient(circle at 50% 0%, #FFE66D 0%, #FFD93B 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 1rem;
+      overflow-x: hidden;
+    }
+
+    /* Container */
+    #app {
+      position: relative;
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      margin: 0 auto;
+      padding-bottom: 2rem;
+    }
+
+    .top-audio-btn {
+      position: absolute;
+      top: 0.85rem;
+      right: 0.85rem;
+      z-index: 50;
+    }
+
+    /* Header Bar */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 0.75rem 1.25rem;
+      background: #FFFFFF;
+      border: 4px solid #000000;
+      border-radius: var(--radius-lg);
+      box-shadow: 6px 6px 0px 0px #000000;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 1.35rem;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      color: #000000;
+      text-transform: uppercase;
+    }
+
+    .brand-icon {
+      font-size: 1.6rem;
+    }
+
+    .audio-btn {
+      background: var(--accent-teal);
+      border: 3px solid #000000;
+      color: #000000;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.25rem;
+      box-shadow: 3px 3px 0px 0px #000000;
+      transition: all 0.15s ease;
+    }
+
+    .audio-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0px 0px #000000;
+    }
+
+    /* Common Card Styles */
+    .card {
+      background: var(--bg-card);
+      border: 4px solid #000000;
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .card-title {
+      font-size: 1.5rem;
+      font-weight: 900;
+      text-align: center;
+      color: #000000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+    }
+
+    .card-subtitle {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-align: center;
+      line-height: 1.4;
+      margin-top: -0.5rem;
+    }
+
+    /* Controls & Buttons */
+    .btn {
+      width: 100%;
+      min-height: 54px;
+      padding: 0.85rem 1.25rem;
+      border-radius: var(--radius-md);
+      border: 3px solid #000000;
+      font-size: 1.1rem;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.15s ease;
+      white-space: nowrap;
+      box-shadow: var(--shadow-btn);
+    }
+
+    .btn:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: var(--shadow-btn-hover);
+    }
+
+    .btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px 0px #000000;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: var(--shadow-btn) !important;
+    }
+
+    .btn-primary {
+      background: var(--accent-coral);
+      color: #000000;
+    }
+
+    .btn-secondary {
+      background: #FFFFFF;
+      color: #000000;
+    }
+
+    .btn-success {
+      background: var(--accent-teal);
+      color: #000000;
+    }
+
+    .btn-warning {
+      background: var(--accent-yellow);
+      color: #000000;
+    }
+
+    .btn-danger {
+      background: #FF4757;
+      color: #FFFFFF;
+    }
+
+    /* Player Counter Grid */
+    .counter-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #FFE66D;
+      border: 3px solid #000000;
+      border-radius: var(--radius-md);
+      padding: 0.85rem 1rem;
+      box-shadow: 4px 4px 0px 0px #000000;
+    }
+
+    .counter-label {
+      font-weight: 800;
+      color: #000000;
+      font-size: 1rem;
+    }
+
+    .counter-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .counter-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #FFFFFF;
+      border: 3px solid #000000;
+      color: #000000;
+      font-size: 1.35rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 3px 3px 0px 0px #000000;
+      transition: all 0.1s ease;
+    }
+
+    .counter-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0px 0px #000000;
+    }
+
+    .counter-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .counter-val {
+      font-size: 1.35rem;
+      font-weight: 900;
+      width: 28px;
+      text-align: center;
+      color: #000000;
+    }
+
+    /* Player Name Inputs */
+    .player-inputs {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      max-height: 220px;
+      overflow-y: auto;
+      padding-right: 0.25rem;
+    }
+
+    .input-group {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: #F8FAFC;
+      border: 3px solid #000000;
+      border-radius: var(--radius-sm);
+      padding: 0.45rem 0.75rem;
+      box-shadow: 3px 3px 0px 0px #000000;
+    }
+
+    .input-avatar {
+      font-size: 1.2rem;
+    }
+
+    .input-field {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: #000000;
+      font-size: 1rem;
+      font-weight: 800;
+      outline: none;
+    }
+
+    .input-field::placeholder {
+      color: #94A3B8;
+      font-weight: 600;
+    }
+
+    /* Category Selection */
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+
+    .category-card {
+      background: #FFFFFF;
+      border: 3px solid #000000;
+      border-radius: var(--radius-md);
+      padding: 0.85rem 0.6rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+      box-shadow: 4px 4px 0px 0px #000000;
+    }
+
+    .category-card:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0px 0px #000000;
+      background: #FFF9D2;
+    }
+
+    .category-card.selected {
+      background: var(--accent-teal);
+      box-shadow: 5px 5px 0px 0px #000000;
+    }
+
+    .category-icon {
+      font-size: 1.6rem;
+    }
+
+    .category-name {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: #000000;
+    }
+
+    /* Shield / Privacy Screen */
+    .shield-box {
+      text-align: center;
+      padding: 2.25rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.25rem;
+      background: #FFE66D;
+      border: 4px solid #000000;
+      border-radius: var(--radius-lg);
+      box-shadow: 6px 6px 0px 0px #000000;
+    }
+
+    .shield-icon {
+      font-size: 4.5rem;
+      animation: pulse 2s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    .player-target-badge {
+      font-size: 2rem;
+      font-weight: 900;
+      color: #000000;
+      background: #FFFFFF;
+      padding: 0.6rem 1.5rem;
+      border-radius: 999px;
+      border: 3px solid #000000;
+      box-shadow: 4px 4px 0px 0px #000000;
+      text-transform: uppercase;
+    }
+
+    /* Secret Reveal Box */
+    .secret-box {
+      border-radius: var(--radius-lg);
+      padding: 2rem 1.25rem;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      position: relative;
+      overflow: hidden;
+      border: 4px solid #000000;
+      box-shadow: 8px 8px 0px 0px #000000;
+    }
+
+    .secret-box.insider {
+      background: var(--accent-teal);
+    }
+
+    .secret-box.imposter {
+      background: var(--accent-coral);
+    }
+
+    .role-badge {
+      display: inline-block;
+      padding: 0.5rem 1.25rem;
+      border-radius: 999px;
+      font-size: 0.95rem;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin: 0 auto;
+      border: 3px solid #000000;
+      box-shadow: 3px 3px 0px 0px #000000;
+      background: #FFFFFF;
+      color: #000000;
+    }
+
+    .category-label {
+      font-size: 1rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #000000;
+    }
+
+    .secret-word-display {
+      font-size: 2.25rem;
+      font-weight: 900;
+      color: #000000;
+      background: #FFFFFF;
+      padding: 1.1rem;
+      border-radius: var(--radius-md);
+      border: 3px solid #000000;
+      box-shadow: 4px 4px 0px 0px #000000;
+      line-height: 1.2;
+    }
+
+    .tip-box {
+      font-size: 0.92rem;
+      font-weight: 700;
+      line-height: 1.4;
+      color: #000000;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 0.85rem;
+      border-radius: var(--radius-sm);
+      border: 2px solid #000000;
+    }
+
+    /* Discussion Phase */
+    .timer-display {
+      font-size: 2.75rem;
+      font-weight: 900;
+      color: #000000;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+      margin: 0.25rem 0;
+    }
+
+    .turn-order-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      background: #FFF9D2;
+      padding: 0.85rem;
+      border-radius: var(--radius-md);
+      border: 3px solid #000000;
+      box-shadow: 4px 4px 0px 0px #000000;
+    }
+
+    .turn-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 1rem;
+      font-weight: 800;
+      color: #000000;
+    }
+
+    .turn-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #000000;
+      font-size: 0.85rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFFFFF;
+    }
+
+    /* Voting Grid */
+    .voting-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+
+    .player-vote-card {
+      background: #FFFFFF;
+      border: 3px solid #000000;
+      border-radius: var(--radius-md);
+      padding: 1rem 0.75rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 4px 4px 0px 0px #000000;
+    }
+
+    .player-vote-card:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0px 0px #000000;
+    }
+
+    .player-vote-card.selected {
+      border: 4px solid #000000;
+      background: var(--accent-coral);
+      box-shadow: 6px 6px 0px 0px #000000;
+    }
+
+    .vote-avatar {
+      font-size: 2.2rem;
+    }
+
+    .vote-name {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #000000;
+    }
+
+    /* Modal Sheet for Topic Words */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 100;
+      animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .modal-content {
+      background: #FFD93B;
+      border: 4px solid #000000;
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 460px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 12px 12px 0px 0px #000000;
+    }
+
+    .words-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.6rem;
+    }
+
+    .word-chip {
+      background: #FFFFFF;
+      border: 3px solid #000000;
+      border-radius: var(--radius-sm);
+      padding: 0.7rem 0.5rem;
+      text-align: center;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #000000;
+      cursor: pointer;
+      box-shadow: 3px 3px 0px 0px #000000;
+      transition: all 0.15s ease;
+    }
+
+    .word-chip:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 5px 5px 0px 0px #000000;
+      background: #4ECDC4;
+    }
+
+    /* Resolution Stats */
+    .result-banner {
+      font-size: 2.25rem;
+      font-weight: 900;
+      text-align: center;
+      color: #000000;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+    }
+
+    .result-banner.win {
+      color: #000000;
+      background: var(--accent-teal);
+      padding: 0.75rem;
+      border: 4px solid #000000;
+      border-radius: var(--radius-md);
+      box-shadow: 5px 5px 0px 0px #000000;
+    }
+
+    .result-banner.loss {
+      color: #000000;
+      background: var(--accent-coral);
+      padding: 0.75rem;
+      border: 4px solid #000000;
+      border-radius: var(--radius-md);
+      box-shadow: 5px 5px 0px 0px #000000;
+    }
+
+    .result-detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.85rem;
+      background: #FFF9D2;
+      border-radius: var(--radius-sm);
+      border: 3px solid #000000;
+      box-shadow: 3px 3px 0px 0px #000000;
+    }
+
+    .result-detail-label {
+      color: #000000;
+      font-size: 0.95rem;
+      font-weight: 800;
+    }
+
+    .result-detail-value {
+      font-weight: 900;
+      color: #000000;
+      font-size: 1.05rem;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="app">
+    <!-- Floating Audio Toggle -->
+    <div class="top-audio-btn">
+      <button class="audio-btn" id="audioToggleBtn" title="Toggle Sound">🔊</button>
+    </div>
+
+    <!-- SCREEN 1: SETUP -->
+    <div id="screenSetup" class="card">
+      <div class="card-title">🥸 Camo Dude Setup</div>
+      <div class="card-subtitle">Gather 3 to 8 family members or friends!</div>
+
+      <!-- Player Count -->
+      <div class="counter-row">
+        <span class="counter-label">Number of Players</span>
+        <div class="counter-controls">
+          <button class="counter-btn" id="btnMinusPlayers">-</button>
+          <span class="counter-val" id="playerCountVal">4</span>
+          <button class="counter-btn" id="btnPlusPlayers">+</button>
+        </div>
+      </div>
+
+      <!-- Player Names -->
+      <div>
+        <div style="font-size: 0.95rem; font-weight: 800; color: #000000; margin-bottom: 0.5rem; text-transform: uppercase;">Player Names</div>
+        <div class="player-inputs" id="playerInputsContainer"></div>
+      </div>
+
+      <!-- Category Selection -->
+      <div>
+        <div style="font-size: 0.95rem; font-weight: 800; color: #000000; margin-bottom: 0.5rem; text-transform: uppercase;">Select Topic Category</div>
+        <div class="category-grid" id="categoryGrid"></div>
+      </div>
+
+      <button class="btn btn-primary" id="btnStartGame">🚀 Start Game</button>
+    </div>
+
+    <!-- SCREEN 2: PASS & PLAY SHIELD -->
+    <div id="screenShield" class="card hidden">
+      <div class="shield-box">
+        <div class="shield-icon">🙈</div>
+        <div style="font-size: 0.95rem; color: #000000; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 900;">Secret Hand-Off</div>
+        <div style="font-size: 1.15rem; color: #000000; font-weight: 800;">Pass the device secretly to:</div>
+        <div class="player-target-badge" id="shieldPlayerName">Player 1</div>
+        <div style="font-size: 0.9rem; color: #000000; font-weight: 700; max-width: 280px; line-height: 1.4;">
+          Keep the screen hidden from everyone else in the room!
+        </div>
+        <button class="btn btn-primary" id="btnRevealSecret">👁️ I am <span id="btnShieldPlayerNameText">Player 1</span> - Reveal</button>
+      </div>
+    </div>
+
+    <!-- SCREEN 3: SECRET REVEAL -->
+    <div id="screenReveal" class="card hidden">
+      <div class="secret-box" id="secretBox">
+        <div class="role-badge" id="roleBadge">INSIDER</div>
+        <div class="category-label" id="revealCategoryLabel">Topic Category</div>
+        <div class="secret-word-display" id="secretWordDisplay">Elephant</div>
+        <div class="tip-box" id="revealTipBox">
+          Say one word related to this topic during discussion. Don't be too obvious!
+        </div>
+      </div>
+
+      <button class="btn btn-secondary" id="btnHideAndContinue">🔒 Hide & Next Player</button>
+    </div>
+
+    <!-- SCREEN 4: DISCUSSION PHASE -->
+    <div id="screenDiscussion" class="card hidden">
+      <div class="card-title">🗣️ Discussion Phase</div>
+      <div class="card-subtitle">Going in order, each player says OUT LOUD exactly ONE word related to the secret word!</div>
+
+      <div class="turn-order-list" id="turnOrderList"></div>
+
+      <!-- Optional Timer -->
+      <div style="background: #FFF9D2; padding: 1rem; border-radius: var(--radius-md); border: 3px solid #000000; box-shadow: 4px 4px 0px 0px #000000; text-align: center;">
+        <div style="font-size: 0.85rem; text-transform: uppercase; color: #000000; font-weight: 900; letter-spacing: 0.05em;">Discussion Timer</div>
+        <div class="timer-display" id="timerDisplay">01:00</div>
+        <div style="display: flex; gap: 0.5rem; justify-content: center;">
+          <button class="btn btn-secondary" id="btnStartTimer" style="min-height: 42px; font-size: 0.9rem; width: auto; padding: 0.4rem 1.25rem;">▶️ Start</button>
+          <button class="btn btn-secondary" id="btnResetTimer" style="min-height: 42px; font-size: 0.9rem; width: auto; padding: 0.4rem 1.25rem;">🔄 Reset</button>
+        </div>
+      </div>
+
+      <button class="btn btn-warning" id="btnBeginVoting">🗳️ Begin Group Voting</button>
+    </div>
+
+    <!-- SCREEN 5: VOTING -->
+    <div id="screenVoting" class="card hidden">
+      <div class="card-title">🔎 Who is the Camo Dude?</div>
+      <div class="card-subtitle">Discuss as a family and tap the player you suspect of blending in!</div>
+
+      <div class="voting-grid" id="votingGrid"></div>
+
+      <button class="btn btn-danger" id="btnConfirmVote" disabled>⚖️ Confirm Accusation</button>
+    </div>
+
+    <!-- SCREEN 6: CAMO DUDE GUESS (LAST CHANCE) -->
+    <div id="screenImposterGuess" class="card hidden">
+      <div class="card-title" style="color: #000000;">🥸 Caught! Camo Dude's Last Chance</div>
+      <div class="card-subtitle" style="color: #000000; font-weight: 700;">
+        <strong id="accusedImposterName">Alex</strong> was caught! Speak your blind guess OUT LOUD to the group now!
+      </div>
+
+      <div style="font-size: 0.95rem; font-weight: 900; color: #000000; text-align: center; text-transform: uppercase;" id="imposterCategoryHeader">Category: Animals</div>
+
+      <div id="imposterGuessStep1" style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
+        <div style="background: #FFF9D2; padding: 1rem; border-radius: var(--radius-md); border: 3px solid #000000; text-align: center; font-weight: 800; font-size: 0.95rem; box-shadow: 4px 4px 0px 0px #000000;">
+          🔊 Camo Dude: Say your secret word guess OUT LOUD to the room before tapping below!
+        </div>
+        <button class="btn btn-primary" id="btnRevealWordForCheck">👁️ Reveal Secret Word to Check Guess</button>
+      </div>
+
+      <div id="imposterGuessStep2" class="hidden" style="display: flex; flex-direction: column; gap: 1.25rem; align-items: center; width: 100%;">
+        <div style="background: #FFFFFF; border: 3px solid #000000; border-radius: var(--radius-md); padding: 1.25rem; width: 100%; text-align: center; box-shadow: 4px 4px 0px 0px #000000;">
+          <div style="font-size: 0.85rem; font-weight: 900; color: #000000; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">The Actual Secret Word Is:</div>
+          <div class="secret-word-display" id="secretWordCheckDisplay" style="font-size: 2rem; font-weight: 900; background: var(--accent-yellow); border: 3px solid #000000; box-shadow: 4px 4px 0px 0px #000000; color: #000000;">ELEPHANT</div>
+        </div>
+
+        <div style="font-size: 1.05rem; font-weight: 900; color: #000000; text-align: center;">
+          Did <span id="accusedImposterName2">Alex</span> guess it correctly?
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; width: 100%;">
+          <button class="btn btn-success" id="btnGuessCorrect" style="flex: 1;">🎯 Yes, Correct!</button>
+          <button class="btn btn-danger" id="btnGuessWrong" style="flex: 1;">❌ No, Wrong!</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 7: RESOLUTION -->
+    <div id="screenResolution" class="card hidden">
+      <div class="result-banner" id="resultBanner">INSIDERS WIN! 🎉</div>
+
+      <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+        <div class="result-detail-row">
+          <span class="result-detail-label">The Camo Dude 🥸</span>
+          <span class="result-detail-value" id="resImposterName">Alex</span>
+        </div>
+        <div class="result-detail-row">
+          <span class="result-detail-label">Secret Word</span>
+          <span class="result-detail-value" style="color: #000000;" id="resSecretWord">Elephant</span>
+        </div>
+        <div class="result-detail-row">
+          <span class="result-detail-label">Camo Dude's Hint</span>
+          <span class="result-detail-value" style="color: #000000;" id="resImposterHint">Mammal</span>
+        </div>
+        <div class="result-detail-row">
+          <span class="result-detail-label">Group Accused</span>
+          <span class="result-detail-value" id="resAccusedName">Alex</span>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="btnPlayAgainSame">🔄 Play Again (Same Players)</button>
+      <button class="btn btn-secondary" id="btnNewGame">⚙️ Game Setup</button>
+    </div>
+
+  </div>
+
+  <script>
+    // --- 1. GAME DATA STRUCTURE ---
+    const getCategories = () => window.CATEGORIES || [];
+
+    const AVATARS = ["🦊", "🐼", "🐯", "🦁", "🦄", "🐨", "🐸", "🦉"];
+
+    // --- 2. GAME STATE MANAGEMENT ---
+    let state = {
+      playerCount: 4,
+      playerNames: ["Player 1", "Player 2", "Player 3", "Player 4"],
+      selectedCategoryId: "random",
+      currentCategory: null,
+      secretWordObj: null,
+      imposterIndex: -1,
+      currentTurnIndex: 0,
+      votedPlayerIndex: -1,
+      timerSeconds: 60,
+      timerInterval: null,
+      soundEnabled: true
+    };
+
+    // --- 3. WEB AUDIO SYNTHESIZER (No external assets) ---
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new AudioContext();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playSound(type) {
+      if (!state.soundEnabled) return;
+      try {
+        initAudio();
+        const now = audioCtx.currentTime;
+
+        if (type === 'click') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(600, now);
+          osc.frequency.exponentialRampToValueAtTime(200, now + 0.05);
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.05);
+        } else if (type === 'reveal') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(300, now);
+          osc.frequency.exponentialRampToValueAtTime(600, now + 0.15);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.2);
+        } else if (type === 'win') {
+          const notes = [440, 554.37, 659.25, 880];
+          notes.forEach((freq, idx) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+            gain.gain.setValueAtTime(0.2, now + idx * 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.1 + 0.25);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now + idx * 0.1);
+            osc.stop(now + idx * 0.1 + 0.25);
+          });
+        } else if (type === 'loss') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(220, now);
+          osc.frequency.exponentialRampToValueAtTime(110, now + 0.3);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.3);
+        } else if (type === 'tick') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(800, now);
+          gain.gain.setValueAtTime(0.05, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.03);
+        }
+      } catch (e) {
+        console.log("Audio playback notice:", e);
+      }
+    }
+
+    // --- 4. DOM ELEMENTS ---
+    const screens = {
+      setup: document.getElementById('screenSetup'),
+      shield: document.getElementById('screenShield'),
+      reveal: document.getElementById('screenReveal'),
+      discussion: document.getElementById('screenDiscussion'),
+      voting: document.getElementById('screenVoting'),
+      imposterGuess: document.getElementById('screenImposterGuess'),
+      resolution: document.getElementById('screenResolution')
+    };
+
+    // --- 5. INITIALIZATION & UI RENDERING ---
+    function initUI() {
+      renderPlayerInputs();
+      renderCategoryGrid();
+      attachEventListeners();
+    }
+
+    function showScreen(screenKey) {
+      Object.keys(screens).forEach(key => {
+        if (key === screenKey) {
+          screens[key].classList.remove('hidden');
+        } else {
+          screens[key].classList.add('hidden');
+        }
+      });
+      window.scrollTo(0, 0);
+    }
+
+    function renderPlayerInputs() {
+      const container = document.getElementById('playerInputsContainer');
+      container.innerHTML = '';
+
+      for (let i = 0; i < state.playerCount; i++) {
+        const avatar = AVATARS[i % AVATARS.length];
+        const defaultName = state.playerNames[i] || `Player ${i + 1}`;
+
+        const group = document.createElement('div');
+        group.className = 'input-group';
+        group.innerHTML = `
+          <span class="input-avatar">${avatar}</span>
+          <input type="text" class="input-field" data-index="${i}" value="${defaultName}" placeholder="Player ${i + 1} Name">
+        `;
+
+        const input = group.querySelector('input');
+        input.addEventListener('input', (e) => {
+          state.playerNames[i] = e.target.value.trim() || `Player ${i + 1}`;
+        });
+
+        container.appendChild(group);
+      }
+      document.getElementById('playerCountVal').textContent = state.playerCount;
+      document.getElementById('btnMinusPlayers').disabled = state.playerCount <= 3;
+      document.getElementById('btnPlusPlayers').disabled = state.playerCount >= 8;
+    }
+
+    function renderCategoryGrid() {
+      const grid = document.getElementById('categoryGrid');
+      grid.innerHTML = '';
+
+      const cats = getCategories();
+
+      // Add Random Option
+      const randomCard = document.createElement('div');
+      randomCard.className = `category-card ${state.selectedCategoryId === 'random' ? 'selected' : ''}`;
+      randomCard.innerHTML = `
+        <span class="category-icon">🎲</span>
+        <span class="category-name">Random Category</span>
+      `;
+      randomCard.addEventListener('click', () => {
+        playSound('click');
+        state.selectedCategoryId = 'random';
+        renderCategoryGrid();
+      });
+      grid.appendChild(randomCard);
+
+      cats.forEach(cat => {
+        const card = document.createElement('div');
+        card.className = `category-card ${state.selectedCategoryId === cat.id ? 'selected' : ''}`;
+        card.innerHTML = `
+          <span class="category-icon">${cat.icon}</span>
+          <span class="category-name">${cat.name}</span>
+        `;
+        card.addEventListener('click', () => {
+          playSound('click');
+          state.selectedCategoryId = cat.id;
+          renderCategoryGrid();
+        });
+        grid.appendChild(card);
+      });
+    }
+
+    // --- 6. GAME LOGIC & FLOW ---
+    function startGame() {
+      playSound('click');
+
+      const cats = getCategories();
+
+      // Select Category
+      if (state.selectedCategoryId === 'random') {
+        const randIdx = Math.floor(Math.random() * cats.length);
+        state.currentCategory = cats[randIdx];
+      } else {
+        state.currentCategory = cats.find(c => c.id === state.selectedCategoryId) || cats[0];
+      }
+
+      // Pick Secret Word
+      const wordIdx = Math.floor(Math.random() * state.currentCategory.words.length);
+      state.secretWordObj = state.currentCategory.words[wordIdx];
+
+      // Pick Imposter
+      state.imposterIndex = Math.floor(Math.random() * state.playerCount);
+      state.currentTurnIndex = 0;
+
+      // Reset timer
+      resetTimer();
+
+      // Proceed to Pass-and-Play Loop
+      setupTurnShield();
+    }
+
+    function setupTurnShield() {
+      const currentPlayerName = state.playerNames[state.currentTurnIndex] || `Player ${state.currentTurnIndex + 1}`;
+      document.getElementById('shieldPlayerName').textContent = currentPlayerName;
+      document.getElementById('btnShieldPlayerNameText').textContent = currentPlayerName;
+      showScreen('shield');
+    }
+
+    function revealSecretRole() {
+      playSound('reveal');
+      const isImposter = (state.currentTurnIndex === state.imposterIndex);
+      const secretBox = document.getElementById('secretBox');
+      const roleBadge = document.getElementById('roleBadge');
+      const categoryLabel = document.getElementById('revealCategoryLabel');
+      const wordDisplay = document.getElementById('secretWordDisplay');
+      const tipBox = document.getElementById('revealTipBox');
+
+      categoryLabel.textContent = `Category: ${state.currentCategory.name}`;
+
+      if (isImposter) {
+        secretBox.className = 'secret-box imposter';
+        roleBadge.className = 'role-badge imposter';
+        roleBadge.textContent = 'YOU ARE THE CAMO DUDE 🥸';
+        wordDisplay.textContent = `Hint: "${state.secretWordObj.hint}"`;
+        tipBox.textContent = "You are the CAMO DUDE! Listen closely to other players' words during discussion to deduce the secret word and blend in!";
+      } else {
+        secretBox.className = 'secret-box insider';
+        roleBadge.className = 'role-badge insider';
+        roleBadge.textContent = 'YOU ARE AN INSIDER 🤫';
+        wordDisplay.textContent = state.secretWordObj.secret;
+        tipBox.textContent = `Say ONE word related to "${state.secretWordObj.secret}" during discussion. Don't be too obvious!`;
+      }
+
+      showScreen('reveal');
+    }
+
+    function advancePassAndPlay() {
+      playSound('click');
+      state.currentTurnIndex++;
+
+      if (state.currentTurnIndex < state.playerCount) {
+        setupTurnShield();
+      } else {
+        startDiscussionPhase();
+      }
+    }
+
+    function startDiscussionPhase() {
+      showScreen('discussion');
+
+      // Populate Turn Order List
+      const turnList = document.getElementById('turnOrderList');
+      turnList.innerHTML = '';
+
+      state.playerNames.forEach((name, idx) => {
+        const item = document.createElement('div');
+        item.className = 'turn-item';
+        item.innerHTML = `
+          <span class="turn-num">${idx + 1}</span>
+          <span>${name}</span>
+        `;
+        turnList.appendChild(item);
+      });
+    }
+
+    function renderVotingGrid() {
+      showScreen('voting');
+      state.votedPlayerIndex = -1;
+      const btnConfirm = document.getElementById('btnConfirmVote');
+      btnConfirm.disabled = true;
+
+      const grid = document.getElementById('votingGrid');
+      grid.innerHTML = '';
+
+      state.playerNames.forEach((name, idx) => {
+        const card = document.createElement('div');
+        card.className = 'player-vote-card';
+        card.innerHTML = `
+          <span class="vote-avatar">${AVATARS[idx % AVATARS.length]}</span>
+          <span class="vote-name">${name}</span>
+        `;
+        card.addEventListener('click', () => {
+          playSound('click');
+          state.votedPlayerIndex = idx;
+          btnConfirm.disabled = false;
+
+          document.querySelectorAll('.player-vote-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+        });
+        grid.appendChild(card);
+      });
+    }
+
+    function confirmVoting() {
+      playSound('click');
+      const accusedIndex = state.votedPlayerIndex;
+      const isImposterCaught = (accusedIndex === state.imposterIndex);
+
+      if (isImposterCaught) {
+        // Trigger Imposter Guess Phase!
+        triggerImposterGuessPhase();
+      } else {
+        // Chameleon Escaped!
+        renderResolution({
+          winner: 'imposter',
+          reason: 'Chameleon escaped un-voted!'
+        });
+      }
+    }
+
+    function triggerImposterGuessPhase() {
+      const imposterName = state.playerNames[state.imposterIndex];
+      document.getElementById('accusedImposterName').textContent = imposterName;
+      const accusedEl2 = document.getElementById('accusedImposterName2');
+      if (accusedEl2) accusedEl2.textContent = imposterName;
+      document.getElementById('imposterCategoryHeader').textContent = `Topic: ${state.currentCategory.name}`;
+
+      const step1 = document.getElementById('imposterGuessStep1');
+      const step2 = document.getElementById('imposterGuessStep2');
+      if (step1) step1.classList.remove('hidden');
+      if (step2) step2.classList.add('hidden');
+
+      showScreen('imposterGuess');
+    }
+
+    function renderResolution(resultData) {
+      const banner = document.getElementById('resultBanner');
+      const imposterName = state.playerNames[state.imposterIndex];
+      const accusedName = state.playerNames[state.votedPlayerIndex];
+
+      document.getElementById('resImposterName').textContent = imposterName;
+      document.getElementById('resSecretWord').textContent = state.secretWordObj.secret;
+      document.getElementById('resImposterHint').textContent = state.secretWordObj.hint;
+      document.getElementById('resAccusedName').textContent = accusedName;
+
+      if (resultData.winner === 'insiders') {
+        playSound('win');
+        banner.className = 'result-banner win';
+        banner.textContent = '🎉 INSIDERS WIN!';
+      } else if (resultData.winner === 'imposter_stole') {
+        playSound('loss');
+        banner.className = 'result-banner loss';
+        banner.textContent = '🧠 CAMO DUDE STOLE THE WIN!';
+      } else {
+        playSound('loss');
+        banner.className = 'result-banner loss';
+        banner.textContent = '🥸 CAMO DUDE ESCAPED!';
+      }
+
+      showScreen('resolution');
+    }
+
+    // --- 7. TIMER LOGIC ---
+    function startTimer() {
+      playSound('click');
+      if (state.timerInterval) clearInterval(state.timerInterval);
+
+      const btnStart = document.getElementById('btnStartTimer');
+      btnStart.textContent = '⏸️ Pause';
+
+      state.timerInterval = setInterval(() => {
+        if (state.timerSeconds > 0) {
+          state.timerSeconds--;
+          updateTimerDisplay();
+          if (state.timerSeconds <= 5) {
+            playSound('tick');
+          }
+        } else {
+          clearInterval(state.timerInterval);
+          state.timerInterval = null;
+          playSound('loss');
+          btnStart.textContent = '▶️ Start';
+        }
+      }, 1000);
+    }
+
+    function resetTimer() {
+      if (state.timerInterval) {
+        clearInterval(state.timerInterval);
+        state.timerInterval = null;
+      }
+      state.timerSeconds = 60;
+      updateTimerDisplay();
+      document.getElementById('btnStartTimer').textContent = '▶️ Start';
+    }
+
+    function updateTimerDisplay() {
+      const mins = Math.floor(state.timerSeconds / 60);
+      const secs = state.timerSeconds % 60;
+      const formatted = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      document.getElementById('timerDisplay').textContent = formatted;
+    }
+
+    // --- 8. GUESS REVEAL LISTENERS ---
+    function attachEventListeners() {
+      // Audio toggle
+      document.getElementById('audioToggleBtn').addEventListener('click', () => {
+        state.soundEnabled = !state.soundEnabled;
+        document.getElementById('audioToggleBtn').textContent = state.soundEnabled ? '🔊' : '🔇';
+      });
+
+      // Player counter
+      document.getElementById('btnMinusPlayers').addEventListener('click', () => {
+        playSound('click');
+        if (state.playerCount > 3) {
+          state.playerCount--;
+          state.playerNames = state.playerNames.slice(0, state.playerCount);
+          renderPlayerInputs();
+        }
+      });
+
+      document.getElementById('btnPlusPlayers').addEventListener('click', () => {
+        playSound('click');
+        if (state.playerCount < 8) {
+          state.playerCount++;
+          if (!state.playerNames[state.playerCount - 1]) {
+            state.playerNames.push(`Player ${state.playerCount}`);
+          }
+          renderPlayerInputs();
+        }
+      });
+
+      // Screen navigation buttons
+      document.getElementById('btnStartGame').addEventListener('click', startGame);
+      document.getElementById('btnRevealSecret').addEventListener('click', revealSecretRole);
+      document.getElementById('btnHideAndContinue').addEventListener('click', advancePassAndPlay);
+      document.getElementById('btnBeginVoting').addEventListener('click', renderVotingGrid);
+      document.getElementById('btnConfirmVote').addEventListener('click', confirmVoting);
+
+      // Chameleon Blind Guess Handlers
+      const btnRevealWord = document.getElementById('btnRevealWordForCheck');
+      if (btnRevealWord) {
+        btnRevealWord.addEventListener('click', () => {
+          playSound('reveal');
+          document.getElementById('secretWordCheckDisplay').textContent = state.secretWordObj.secret;
+          document.getElementById('imposterGuessStep1').classList.add('hidden');
+          document.getElementById('imposterGuessStep2').classList.remove('hidden');
+        });
+      }
+
+      const btnCorrect = document.getElementById('btnGuessCorrect');
+      if (btnCorrect) {
+        btnCorrect.addEventListener('click', () => {
+          playSound('click');
+          renderResolution({
+            winner: 'imposter_stole',
+            reason: 'Chameleon was caught, but guessed the secret word correctly out loud!'
+          });
+        });
+      }
+
+      const btnWrong = document.getElementById('btnGuessWrong');
+      if (btnWrong) {
+        btnWrong.addEventListener('click', () => {
+          playSound('click');
+          renderResolution({
+            winner: 'insiders',
+            reason: 'Chameleon was caught and guessed wrong!'
+          });
+        });
+      }
+
+      // Play again
+      document.getElementById('btnPlayAgainSame').addEventListener('click', startGame);
+      document.getElementById('btnNewGame').addEventListener('click', () => {
+        playSound('click');
+        showScreen('setup');
+      });
+
+      // Timer controls
+      document.getElementById('btnStartTimer').addEventListener('click', () => {
+        if (state.timerInterval) {
+          clearInterval(state.timerInterval);
+          state.timerInterval = null;
+          document.getElementById('btnStartTimer').textContent = '▶️ Start';
+        } else {
+          startTimer();
+        }
+      });
+      document.getElementById('btnResetTimer').addEventListener('click', resetTimer);
+    }
+
+    // Run Initialization
+    initUI();
+  </script>
+</body>
+</html>
